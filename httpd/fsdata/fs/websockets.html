@@ -30,9 +30,11 @@
 
 			<h1 class="pad">WebSockets Control</h1>
 			<div id="status_box" class="alert alert-info">Loading..</div>
-			<p>This section provides simple control functional.</p>
-			<canvas id="chartCanvas" width="550" height="100"></canvas>
+			<p>Simple voltage measurer, which read value from ESP ADC (PIN A0). Values of Y axis is between 0 and 1023.</p>
+			<div id="chartContainer" style="height: 300px; width: 100%;"></div>
 			<p/>
+
+
 			<p>LED Control</p>
 			<div class="onoffswitch">
 				<input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="led-switch" onclick="gpio()">
@@ -65,36 +67,66 @@
 				Each time a WebSocket frame is received on the server side, <code>websocket_cb</code> function is being called.</p>
 		</div>
 
+		<script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
 		<script type="text/javascript" src="js/smoothie_min.js"></script>
 		<script>
+
+			var dps = []; // dataPoints
+			var chart = new CanvasJS.Chart("chartContainer", {
+				animationEnabled: true,
+				animationDuration: 1000,
+				axisX: {
+					interlacedColor: "#F0F8FF"
+				},
+				axisY: {
+					title: "ADC voltage"
+				},
+				data: [{
+					type: "line",
+					dataPoints: dps
+				}]
+			});
+
+			var xVal = 0;
+			var dataLength = 30; // number of dataPoints visible at any point
+
+			var updateChart = function (yVal) {
+
+				dps.push({
+					x: xVal,
+					y: yVal
+				});
+				xVal++;
+
+				if (dps.length > dataLength) {
+					dps.shift();
+				}
+
+				chart.render();
+			};
+
 			var ws;
 			var retries;
-			var series = new TimeSeries();
 			window.onload = function() {
 				wsOpen();
-				startPolling();
-			}
+				setInterval(function() { wsWrite('A'); }, 500);
+			};
 			function setMsg(cls, text) {
 				sbox = document.getElementById('status_box');
 				sbox.className = "alert alert-" + cls;
 				sbox.innerHTML = text;
 				console.log(text);
 			}
-			function startPolling() {
-				var chart = new SmoothieChart({millisPerPixel:11,grid:{fillStyle:'#ffffff',strokeStyle:'#ffffff',borderVisible:false},
-					labels:{fillStyle:'#000000'},maxValue:1024,minValue:0});
-				chart.addTimeSeries(series, {lineWidth:2,strokeStyle:'#03a9f4',fillStyle:'#f1f5fa'});
-				chart.streamTo(document.getElementById("chartCanvas"), 500);
-				setInterval(function() { wsWrite('A'); }, 500);
-			}
+
 			function onMessage(evt) {
 				retries = 0;
 				var dv = new DataView(evt.data);
 				var val = dv.getUint16(0);
 				if (val == 0xBEEF || val == 0xDEAD)
 					console.log("LED switched");
-				else
-					series.append(new Date().getTime(), val);
+				else {
+					updateChart(val)
+				}
 			}
 			function wsOpen() {
 				if (ws === undefined || ws.readyState != 0) {
@@ -112,7 +144,7 @@
 				}
 			}
 			function wsOpenStream() {
-				var uri = "/stream"
+				var uri = "/stream";
 				var ws = new WebSocket("ws://" + location.host + uri);
 				ws.onmessage = function(evt) {
 					console.log(evt.data);

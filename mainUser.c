@@ -148,7 +148,7 @@ void websocket_task(void *pvParameter)
  */
 void websocket_cb(struct tcp_pcb *pcb, uint8_t *data, u16_t data_len, uint8_t mode)
 {
-    printf("[websocket_callback]:\n%.*s\n", (int) data_len, (char*) data);
+    //printf("[websocket_callback]:\n%.*s\n", (int) data_len, (char*) data);
 
     uint8_t response[2];
     uint16_t val;
