@@ -11,7 +11,8 @@
 	<body>
 		<ul class="navbar">
 			<li><a href="/">Home</a></li>
-			<li><a class="active" href="websockets">Status</a></li>
+			<li><a class="active" href="status">Status</a></li>
+			<li><a href="settings">Settings</a></li>
 			<li><a href="about">About</a></li>
 		</ul>
 
@@ -28,7 +29,7 @@
 				</tr>
 			</table>
 
-			<h1 class="pad">WebSockets Control</h1>
+			<h1 class="pad">Hardware</h1>
 			<div id="status_box" class="alert alert-info">Loading..</div>
 			<p>Simple voltage measurer, which read value from ESP ADC (PIN A0). Values of Y axis is between 0 and 1023.</p>
 			<div id="chartContainer" style="height: 300px; width: 100%;"></div>
@@ -61,7 +62,7 @@
 			</table>
 
 			<h1 class="pad">How it works</h1>
-			<p>This demo uses 2 WebScokets. Status parameters are streamed by the server in JSON format every 2 seconds.
+			<p>This demo uses 2 WebScokets. Status parameters are streamed by the server in JSON format every 500 milliseconds.
 				A <code>websocket_task</code> is created each time a specific URI is requested.</p>
 			<p>ADC values are being continuously polled by the client (i.e. your browser).
 				Each time a WebSocket frame is received on the server side, <code>websocket_cb</code> function is being called.</p>
@@ -74,7 +75,7 @@
 			var dps = []; // dataPoints
 			var chart = new CanvasJS.Chart("chartContainer", {
 				animationEnabled: true,
-				animationDuration: 1000,
+				animationDuration: 800,
 				axisX: {
 					interlacedColor: "#F0F8FF"
 				},
@@ -109,7 +110,7 @@
 			var retries;
 			window.onload = function() {
 				wsOpen();
-				setInterval(function() { wsWrite('A'); }, 500);
+				setInterval(function() { wsWrite('A'); }, 1000);
 			};
 			function setMsg(cls, text) {
 				sbox = document.getElementById('status_box');

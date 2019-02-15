@@ -104,9 +104,20 @@ char *about_cgi_handler(int iIndex, int iNumParams, char *pcParam[], char *pcVal
     return "/about.html";
 }
 
-char *websocket_cgi_handler(int iIndex, int iNumParams, char *pcParam[], char *pcValue[])
+char *settings_cgi_handler(int iIndex, int iNumParams, char **pcParam, char **pcValue)
 {
-    return "/websockets.html";
+    printf("settings_cgi_handler\n");
+
+    for (int i = 0; i < iNumParams; ++i) {
+        printf("%d. param='%s', val='%s'\n", i, pcParam[i], pcValue[i]);
+    }
+
+    return "/settings.html";
+}
+
+char *status_cgi_handler(int iIndex, int iNumParams, char **pcParam, char **pcValue)
+{
+    return "/status.html";
 }
 
 void websocket_task(void *pvParameter)
@@ -134,7 +145,7 @@ void websocket_task(void *pvParameter)
         if (len < sizeof (response))
             websocket_write(pcb, (unsigned char *) response, len, WS_TEXT_MODE);
 
-        vTaskDelay(2000 / portTICK_PERIOD_MS);
+        vTaskDelay(800 / portTICK_PERIOD_MS);
     }
 
     vTaskDelete(NULL);
@@ -196,7 +207,8 @@ void httpd_task(void *pvParameters)
     tCGI pCGIs[] = {
             {"/gpio", (tCGIHandler) gpio_cgi_handler},
             {"/about", (tCGIHandler) about_cgi_handler},
-            {"/websockets", (tCGIHandler) websocket_cgi_handler},
+            {"/settings", (tCGIHandler) settings_cgi_handler},
+            {"/status", (tCGIHandler) status_cgi_handler},
     };
 
     const char *pcConfigSSITags[] = {

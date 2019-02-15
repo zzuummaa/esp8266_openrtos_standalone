@@ -290,7 +290,7 @@ add_custom_command(TARGET flash
         0x0 ${BOOT_FIRMWARE}
         0x1000 ${ESP_OPEN_RTOS_DIR}/bootloader/firmware_prebuilt/blank_config.bin
         0x2000 esp8266_spiffs.bin
-        0x200000 ${CMAKE_CURRENT_BINARY_DIR}/spiffs/spiffs.bin
+#        0x200000 ${CMAKE_CURRENT_BINARY_DIR}/spiffs/spiffs.bin
         )
 
 add_dependencies(rename remove)
