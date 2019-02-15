@@ -15,7 +15,9 @@
 enum {
     SSI_UPTIME,
     SSI_FREE_HEAP,
-    SSI_LED_STATE
+    SSI_LED_STATE,
+    SSI_SSID,
+    SSI_WIFI_PASS
 };
 
 void test_storage_task(void *pvParameters)
@@ -48,6 +50,7 @@ void test_storage_task(void *pvParameters)
 
 int32_t ssi_handler(int32_t iIndex, char *pcInsert, int32_t iInsertLen)
 {
+    printf("ssi_handler iIndex=%d\n", iIndex);
     switch (iIndex) {
         case SSI_UPTIME:
             snprintf(pcInsert, iInsertLen, "%d",
@@ -58,6 +61,14 @@ int32_t ssi_handler(int32_t iIndex, char *pcInsert, int32_t iInsertLen)
             break;
         case SSI_LED_STATE:
             snprintf(pcInsert, iInsertLen, (GPIO.OUT & BIT(LED_PIN)) ? "Off" : "On");
+            break;
+        case SSI_SSID:
+            // TODO replace WIFI_SSID to dynamic SSID
+            snprintf(pcInsert, iInsertLen, WIFI_SSID);
+            break;
+        case SSI_WIFI_PASS:
+            // TODO replace WIFI_PASS to dynamic wifi password
+            snprintf(pcInsert, iInsertLen, WIFI_PASS);
             break;
         default:
             snprintf(pcInsert, iInsertLen, "N/A");
@@ -113,11 +124,13 @@ void websocket_task(void *pvParameter)
         int led = !gpio_read(LED_PIN);
 
         /* Generate response in JSON format */
-        char response[64];
+        char response[128];
         int len = snprintf(response, sizeof (response),
                            "{\"uptime\" : \"%d\","
                            " \"heap\" : \"%d\","
-                           " \"led\" : \"%d\"}", uptime, heap, led);
+                           " \"led\" : \"%d\","
+                           " \"ssid\" : \"%s\","
+                           " \"wifi_pass\" : \"%s\"}", uptime, heap, led, WIFI_SSID, WIFI_PASS);
         if (len < sizeof (response))
             websocket_write(pcb, (unsigned char *) response, len, WS_TEXT_MODE);
 
@@ -189,7 +202,9 @@ void httpd_task(void *pvParameters)
     const char *pcConfigSSITags[] = {
             "uptime", // SSI_UPTIME
             "heap",   // SSI_FREE_HEAP
-            "led"     // SSI_LED_STATE
+            "led",     // SSI_LED_STATE
+            "ssid",    // SSI_SSID
+            "wifi_pass"// SSI_WIFI_PASS
     };
 
     /* register handlers and start the server */

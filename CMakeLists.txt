@@ -24,7 +24,7 @@ set(ESPPORT /dev/ttyUSB0)
 # NB: Setting the value to 0 requires a recent esptool.py (Feb 2016 / commit ebf02c9)
 set(PRINTF_SCANF_FLOAT_SUPPORT,0)
 
-SET(COMMON_FLAGS -mlongcalls -mtext-section-literals -DGITSHORTREV=\"93d43d7\" -ffunction-sections -fdata-sections -Wall -Wl,-EL -DLWIP_MDNS_RESPONDER=1 -DLWIP_NUM_NETIF_CLIENT_DATA=1 -DLWIP_NETIF_EXT_STATUS_CALLBACK=1)
+SET(COMMON_FLAGS -mlongcalls -mtext-section-literals -DGITSHORTREV=\"bbc2257\" -ffunction-sections -fdata-sections -Wall -Wl,-EL -DLWIP_MDNS_RESPONDER=1 -DLWIP_NUM_NETIF_CLIENT_DATA=1 -DLWIP_NETIF_EXT_STATUS_CALLBACK=1)
 
 SET(CMAKE_CXX_FLAGS "-std=c++11")
 SET(CMAKE_C_FLAGS "-std=gnu99")
@@ -269,7 +269,7 @@ add_custom_command(TARGET rename
 
 add_custom_target(createImage)
 
-add_dependencies(createImage make_spiffs_image)
+#add_dependencies(createImage make_spiffs_image)
 
 
 add_custom_command(TARGET createImage

@@ -4,10 +4,21 @@ project(esp8266_spiffs)
 
 set(CMAKE_CXX_STANDARD 11)
 
+# TODO detect fsdata.c creation
 set(HTTPD_DIR ${ESP_OPEN_RTOS_DIR}/extras/httpd)
-file(GLOB LIB_httpd_SRC ${HTTPD_DIR}/*.c fsdata.c)
+file(GLOB LIB_httpd_SRC
+        ${HTTPD_DIR}/*.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/fsdata/*.c)
+
+add_custom_target(make_fsdata)
+add_custom_command(TARGET make_fsdata
+        PRE_BUILD
+        COMMENT "make fsdata"
+        COMMAND "./makefsdata"
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/fsdata)
 
 add_library(httpd STATIC ${LIB_httpd_SRC})
+add_dependencies(httpd make_fsdata)
 
 target_compile_options(httpd PUBLIC ${COMMON_FLAGS}
             -DLWIP_HTTPD_CGI
